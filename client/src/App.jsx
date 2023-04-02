@@ -1,24 +1,24 @@
 import { useState, useEffect } from 'react';
 import './App.css';
+import { Route, Routes } from 'react-router-dom'
+import LandingPage from './pages/LandingPage';
+import CreateAccountPage from './pages/CreateAccountPage';
+import LoginPage from './pages/LoginPage';
+import LobbyPage from './pages/LobbyPage';
+import GameRoomPage from './pages/GameRoomPage';
+import NotFoundPage from './pages/NotFoundPage';
 
-// functions
-import { getTest } from './functions/test';
 
 function App() {
-  const [data, setData] = useState('Hello World!')
-
-  useEffect(() => {
-    getTest()
-      .then(res => {
-        setData(res.message)
-      })
-      .catch(err => console.log(err))
-  },[])
-
   return (
-    <div className="App">
-      <h1>{data}</h1>
-    </div>
+    <Routes>
+      <Route path="/" element={<LandingPage />}/>
+      <Route path="/create-account" element={<CreateAccountPage />}/>
+      <Route path="/login" element={<LoginPage />}/>
+      <Route path="/lobby" element={<LobbyPage />}/>
+      <Route path="/game-room/:id" element={<GameRoomPage />}/>
+      <Route path="*" element={<NotFoundPage />}/>
+    </Routes>
   );
 }
 
