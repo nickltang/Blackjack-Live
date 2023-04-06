@@ -1,4 +1,4 @@
-import React from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 /*
@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom'
             - Buttons to hit and stand
             - Button to double (if you can double)
             - Button to split
+            - Button to leave game
         - User Box (for each user)
             - Show user's cards
             - Show whose turn it is (highlight/shade)
@@ -23,6 +24,56 @@ import { useParams } from 'react-router-dom'
 */
 const GameRoomPage = () => {
     const { id } = useParams()
+    // players, activePlayers, cards, balance, gameFinished
+    const [players, setPlayers] = useState()
+    const [cards, setCards] = useState()
+    const [balance, setBalance] = useState()
+
+
+    // if player is registered (JWT token)
+
+
+    // join/leave
+    const handleJoin = () => {
+
+    }
+
+    const handleLeave = () => {
+
+    }
+
+    // game change handlers
+    const handleBet = () => {
+        // emit handle bet
+    }
+
+    const handleFold = () => {
+
+    }
+
+    const handleCheck = () => {
+
+    }
+
+    const handleRaise = () => {
+
+    }
+
+    const getMaxBet = () => {
+        
+    } 
+
+
+    // game related functions
+    const canCheck = () => {
+
+    }
+
+    const canRaise = () => {
+        
+    }
+
+
     return (
         <>
             <h1>Game Room: {id}</h1>
