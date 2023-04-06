@@ -2,7 +2,7 @@ const User = require('../models/user.js');
 
 exports.createUser = async(req, res) => {
     res.status(200).json({
-        message: 'Creat user success',
+        message: 'Create user success',
     });
 }
 
