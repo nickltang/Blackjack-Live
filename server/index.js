@@ -24,25 +24,15 @@ app.use(express.json({ extended: false }));
 
 
 // routes
-const testRoutes = require('./routes/test');
+const gameRoutes = require('./routes/game');
 const userRoutes = require('./routes/users');
 
-    // TEST ROUTES
-// app.get('/', (request, response) => {
-//     response.send('Hello');
-//   });
-
-// app.get('/api', (request, response) => {
-//     response.send('Api');
-// });
-
-app.use('/', testRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/game', gameRoutes)
 
 
 // port
 const port = process.env.PORT || 8000
-
 
 // listener
 app.listen(port, () => console.log(`Server is running on ${port}`))

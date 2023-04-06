@@ -1,23 +1,23 @@
+// Router
 const { Router } = require('express');
 const app = Router();
 
+
+// Middleware
+
+
+// Routes
 const {
-    createUser,
-    getUserInfo,
-    updateUserInfo,
-    logIn,
-    logOut
-} = require('../controllers/usersController');
+    createGame,
+    joinGame,
+    leaveGame
+} = require('../controllers/gameController');
 
-app.post('/create-user', createUser);
+app.post('/create-game', createGame);
 
-app.get('/get-user-info', getUserInfo);
+app.post('/join-game', joinGame);
 
-app.post('/update-user-info', updateUserInfo);
-
-app.post('/login', logIn)
-
-app.post('/logout', logOut)
+app.post('/leave-game', leaveGame);
 
 
 module.exports = app;

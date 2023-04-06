@@ -1,4 +1,5 @@
 import React from 'react'
+import Navigation from '../components/Navigation'
 
 /*
     TO DO:
@@ -9,7 +10,12 @@ import React from 'react'
 */
 const LandingPage = () => {
   return (
-    <div>LandingPage</div>
+    <>
+        <Navigation />
+        <div className='mt-5 my-auto text-center'>
+          <h1>Landing Page</h1>
+        </div>
+    </>
   )
 }
 

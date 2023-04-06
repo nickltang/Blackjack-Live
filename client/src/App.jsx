@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import './App.css';
 import { Route, Routes } from 'react-router-dom'
 import LandingPage from './pages/LandingPage';
@@ -7,6 +6,9 @@ import LoginPage from './pages/LoginPage';
 import LobbyPage from './pages/LobbyPage';
 import GameRoomPage from './pages/GameRoomPage';
 import NotFoundPage from './pages/NotFoundPage';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import AccountPage from './pages/AccountPage';
+
 
 
 function App() {
@@ -16,7 +18,8 @@ function App() {
       <Route path="/create-account" element={<CreateAccountPage />}/>
       <Route path="/login" element={<LoginPage />}/>
       <Route path="/lobby" element={<LobbyPage />}/>
-      <Route path="/game-room/:id" element={<GameRoomPage />}/>
+      <Route path="/game-room/" element={<GameRoomPage />}/>
+      <Route path="/account" element={<AccountPage />} />
       <Route path="*" element={<NotFoundPage />}/>
     </Routes>
   );

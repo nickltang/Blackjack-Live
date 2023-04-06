@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import Navigation from '../components/Navigation'
 
 /*
     TO DO:
@@ -76,7 +77,10 @@ const GameRoomPage = () => {
 
     return (
         <>
-            <h1>Game Room: {id}</h1>
+            <Navigation />
+            <div className='mt-5 my-auto text-center'>
+                <h1>Game Room</h1>
+            </div>
         </>
     )
 }

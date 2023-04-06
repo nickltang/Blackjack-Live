@@ -1,5 +1,8 @@
+// Database
 const User = require('../models/user.js');
 
+
+// Endpoints
 exports.createUser = async(req, res) => {
     res.status(200).json({
         message: 'Create user success',

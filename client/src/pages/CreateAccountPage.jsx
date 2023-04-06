@@ -1,4 +1,5 @@
 import React from 'react'
+import Navigation from '../components/Navigation'
 
 /*
     TO DO:
@@ -14,7 +15,12 @@ import React from 'react'
 */
 const CreateAccountPage = () => {
   return (
-    <div>CreateAccountPage</div>
+    <>
+      <Navigation />
+      <div className='mt-5 my-auto text-center'>
+        <h1>Create Account</h1>
+      </div>
+    </>
   )
 }
 
