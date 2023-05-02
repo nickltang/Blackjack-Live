@@ -8,16 +8,22 @@ const app = Router();
 
 // Routes
 const {
-    createGame,
-    joinGame,
-    leaveGame
-} = require('../controllers/gameController');
+    createUser,
+    getUserInfo,
+    updateUserInfo,
+    logIn,
+    logOut
+} = require('../controllers/usersController');
 
-app.post('/create-game', createGame);
+const { protect } = require('../middleware/authMiddleware')
 
-app.post('/join-game', joinGame);
+app.post('/create-user', createUser);
 
-app.post('/leave-game', leaveGame);
+app.get('/get-user-info', protect, getUserInfo);
+
+app.post('/update-user-info', protect, updateUserInfo);
+
+app.post('/login', logIn)
 
 
 module.exports = app;

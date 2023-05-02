@@ -11,7 +11,7 @@ import Navigation from '../components/Navigation'
         - Button to join game
 */
 const createGameURL = 'http://localhost:8000/create-game'
-
+const joinGameURL = 'http://localhost:8000/join-game'
 
 const LobbyPage = () => {
   // State
@@ -23,7 +23,7 @@ const LobbyPage = () => {
   // Handlers
   const handleCreate = () => {
     console.log("Creating game")
-    axios.post('')
+    axios.post(createGameURL)
       .then(res => {
         console.log(res)
         navigate('/game-room')
@@ -31,7 +31,8 @@ const LobbyPage = () => {
   }
 
   const handleJoin = () => {
-    axios.post('')
+    console.log("Joining game")
+    axios.post(joinGameURL)
       .then(res => {
         console.log(res)
         navigate('/game-room')
