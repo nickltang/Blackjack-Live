@@ -141,7 +141,6 @@ const CreateAccountPage = () => {
               onBlur={() => setUserFocus(false)}
             />
 
-
             <label htmlFor="email">
               Email:
               <FontAwesomeIcon icon={faCheck} className={validEmail ? "valid" : "hide"} />
@@ -233,9 +232,5 @@ const CreateAccountPage = () => {
     </>
   )
 }
-
-
-
-
 
 export default CreateAccountPage
