@@ -3,7 +3,7 @@ import Navigation from '../components/Navigation'
 import { useRef, useState, useEffect, useContext } from 'react'
 import AuthContext from "../context/AuthProvider"
 import axios from '../api/axios';
-const LOGIN_URL = '/auth';
+const LOGIN_URL = '/api/users/login';
 
 /*
     TO DO:
