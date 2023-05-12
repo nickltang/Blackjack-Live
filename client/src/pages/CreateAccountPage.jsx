@@ -86,7 +86,6 @@ const CreateAccountPage = () => {
         // Save jwt
         localStorage.setItem('jwt_token', res.data.token)
 
-
         navigate('/lobby')
       })
       .catch(err => {

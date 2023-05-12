@@ -8,9 +8,9 @@ const asyncHandler = require('express-async-handler')
 
 // Endpoints
 exports.createUser = asyncHandler(async (req, res) => {
-    const { username, name, email, password } = req.body
+    const { name, email, password } = req.body
 
-    if(!name || !email || !password || !username) {
+    if(!name || !email || !password ) {
         res.status(400)
         throw new Error('Please add all fields')
     }
@@ -28,7 +28,6 @@ exports.createUser = asyncHandler(async (req, res) => {
 
     // Create user
     const user = await User.create({
-        username,
         name,
         email,
         password: hashedPassword,

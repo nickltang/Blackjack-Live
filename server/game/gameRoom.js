@@ -1,4 +1,4 @@
-const { Player } = require("player")
+const { Player } = require("./player")
 
 class GameRoom {    
     constructor(roomId) {

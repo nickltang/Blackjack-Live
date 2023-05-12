@@ -42,8 +42,8 @@ const io = require('socket.io')(server, {
     }
 })
 
-const { GameRoom, initGameRooms } = require("gameRoom")
-const { Player } = require("Player")
+const { GameRoom, initGameRooms } = require("./game/gameRoom")
+const { Player } = require("./game/player")
 
 // Listen for socket events with name "connection"
 io.on("connection", (socket) =>{
