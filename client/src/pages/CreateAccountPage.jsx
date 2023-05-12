@@ -1,24 +1,13 @@
 import React from 'react'
 import Navigation from '../components/Navigation'
+import { useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from "react";
 import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from '../api/axios';
 import { Link } from "react-router-dom";
 
-/*
-    TO DO:
-        - Create Account page title
-        - Form for account creation
-            - Text field for username
-            - Text field for screen name (what user's name is in game)
-            - Text field for email
-            - Text field for password
-            - Button to create account using form input
-                - Checks if all fields filled out
-                - Checks if username is available by calling api
-                - Checks if password is valid based on criteria
-*/
+
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{5,23}$/;
 const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
@@ -27,6 +16,7 @@ const REGISTER_URL = '/api/users/create-user';
 
 
 const CreateAccountPage = () => {
+  const navigate = useNavigate()
   const userRef = useRef();
   const errRef = useRef();
 
@@ -76,48 +66,50 @@ const CreateAccountPage = () => {
     const v1 = USER_REGEX.test(user);
     const v2 = PWD_REGEX.test(pwd);
     const v3 = EMAIL_REGEX.test(email)
+
     if (!v1 || !v2 || !v3) {
       setErrMsg("Invalid Entry");
       return;
     }
-    try {
-      const response = await axios.post(REGISTER_URL,
-        JSON.stringify({ user, pwd, email }),
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
+
+    await axios.post(REGISTER_URL, {
+        name: user,
+        password: pwd,
+        email: email
+      }, {
+        headers: { 'Content-Type': 'application/json' },
+        // withCredentials: true
+      })
+      .then(res => {
+        console.log(res)
+        
+        // Save jwt
+        localStorage.setItem('jwt_token', res.data.token)
+
+
+        navigate('/lobby')
+      })
+      .catch(err => {
+        if (!err?.response) {
+          setErrMsg('No Server Response');
+        } else if (err.response?.status === 409) {
+          setErrMsg('Username Taken');
+        } else {
+          setErrMsg('Registration Failed')
         }
-      );
-      console.log(JSON.stringify(response?.data));
-      setSuccess(true);
-      //clear state and controlled inputs
-      setUser('');
-      setEmail('')
-      setPwd('');
-      setMatchPwd('');
-    } catch (err) {
-      if (!err?.response) {
-        setErrMsg('No Server Response');
-      } else if (err.response?.status === 409) {
-        setErrMsg('Username Taken');
-      } else {
-        setErrMsg('Registration Failed')
-      }
-      errRef.current.focus();
-    }
+        errRef.current.focus();
+      })
   }
 
   return (
     <>
       <Navigation />
-      {success ? (
         <section>
           <h1>Success!</h1>
           <p>
             <a href="/">Go to Home</a>
           </p>
         </section>
-      ) : (
         <div id="displayForm">
           <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
           <form onSubmit={handleSubmit}>
@@ -228,7 +220,6 @@ const CreateAccountPage = () => {
             </p>
           </form>
         </div>
-      )}
     </>
   )
 }

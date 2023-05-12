@@ -24,20 +24,12 @@ const LandingPage = () => {
   // Handlers
   const handleLogin = () => {
     console.log("Landing Page")
-    axios.post(LoginPageURL)
-      .then(res => {
-        console.log(res)
-        navigate('/Login')
-      }) 
+    navigate('/login')
   }
 
   const handleCreateAccount = () => {
-    console.log("Create Account Page")
-    axios.post(CreateAccountPageURL)
-      .then(res => {
-        console.log(res)
-        navigate('/create-account')
-      }) 
+    console.log("Navigate to Create Account Page")
+    navigate('/create-account')
   }
   return (
     <>

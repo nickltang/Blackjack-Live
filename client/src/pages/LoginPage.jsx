@@ -19,7 +19,7 @@ const LoginPage = () => {
   const userRef = useRef();
   const errRef = useRef();
 
-  const [user, setUser] = useState('');
+  const [email, setEmail] = useState('');
   const [pwd, setPwd] = useState('');
   const [errMsg, setErrMsg] = useState('');
   const [success, setSuccess] = useState(false);
@@ -30,29 +30,27 @@ const LoginPage = () => {
 
   useEffect(() => {
     setErrMsg('');
-  }, [user, pwd])
+  }, [email, pwd])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await axios.post(LOGIN_URL,
-        JSON.stringify({ user, pwd }),
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
-        }
-      );
-      console.log(JSON.stringify(response?.data));
-      console.log(JSON.stringify(response));
-      const accessToken = response?.data?.accessToken;
-      const roles = response?.data?.roles;
-      setAuth({ user, pwd, roles, accessToken });
-      console.log(user, pwd)
-      setUser('');
-      setPwd('');
-      setSuccess(true);
-    } catch (err) {
+
+    await axios.post(LOGIN_URL,
+      { 
+        email: email, 
+        password: pwd },
+      {
+        headers: { 'Content-Type': 'application/json' },
+        // withCredentials: true
+      })
+    .then((res)=> {
+      console.log(res)
+      // Save JWT
+      localStorage.setItem('jwt_token', res.data.token)
+
+    })
+    .catch((err) => {
       if (!err?.response) {
         setErrMsg('No Server Response');
       } else if (err.response?.status === 400) {
@@ -63,8 +61,7 @@ const LoginPage = () => {
         setErrMsg('Login Failed');
       }
       errRef.current.focus();
-    }
-  }
+    })
 
   return (
     <>
@@ -87,9 +84,10 @@ const LoginPage = () => {
               type="text"
               id="username"
               ref={userRef}
+              autoFocus
               autoComplete="off"
-              onChange={(e) => setUser(e.target.value)}
-              value={user}
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
               required
             />
 
@@ -105,8 +103,7 @@ const LoginPage = () => {
           <p id="margin0">
             Need an Account?<br />
             <span id="margin0"className="line">
-              {/*put router link here*/}
-              <a href="#">Sign Up</a>
+              <a href="/create-account">Sign Up</a>
             </span>
           </p>
           </form>
@@ -114,6 +111,7 @@ const LoginPage = () => {
       )}
     </>
   )
+}
 }
 
 export default LoginPage

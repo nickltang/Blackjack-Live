@@ -22,29 +22,29 @@ const AccountPage = () => {
   const navigate = useNavigate()
   const tokenState = getToken()
 
-  useEffect(() => {
-      // If token expired/not present, send user to home page
-      if(tokenState.tokenExpired){
-        navigate('/')
-      }
+  // useEffect(() => {
+  //     // If token expired/not present, send user to home page
+  //     if(tokenState.tokenExpired){
+  //       navigate('/')
+  //     }
       
-      // Get user info
-      axios.get(getUserInfoURL, {
-          headers: {
-              'Authorization': `Bearer ${tokenState.token}`,
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-          }
-      }).then((res) => {
-          // Set current player's information
-          // Add other fields
-          setName(res.data.name)
-          setPlayerId(res.data.id)
+  //     // Get user info
+  //     axios.get(getUserInfoURL, {
+  //         headers: {
+  //             'Authorization': `Bearer ${tokenState.token}`,
+  //             'Accept': 'application/json',
+  //             'Content-Type': 'application/json'
+  //         }
+  //     }).then((res) => {
+  //         // Set current player's information
+  //         // Add other fields
+  //         setName(res.data.name)
+  //         setPlayerId(res.data.id)
   
-      }).catch((error) => {
-          console.log(error)
-      })       
-    }, [])
+  //     }).catch((error) => {
+  //         console.log(error)
+  //     })       
+  //   }, [])
 
 
   return (
