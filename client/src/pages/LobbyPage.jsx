@@ -1,42 +1,69 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Navigation from '../components/Navigation'
+import { getToken } from '../utils/auth';
 
-/*
-    TO DO:
-        - Lobby page title
-        - Button to create game
-        - Button to join game
-*/
-const createGameURL = 'http://localhost:8000/create-game'
-const joinGameURL = 'http://localhost:8000/join-game'
 
-const LobbyPage = () => {
-  // State
-  const [name, setName] = useState("{insert name}")
+const createGameURL = 'http://localhost:8000/users/create-game'
+const joinGameURL = 'http://localhost:8000/users/join-game'
+const getUserInfoURL = 'http://localhost:8000/api/users/get-user-info'
 
+const LobbyPage = ({socket}) => {
   // Hooks
   const navigate = useNavigate()
+  const tokenState = getToken()
+
+  // State
+  const [name, setName] = useState("")
+  const [id, setId] = useState("")
+
+  // Component did mount
+  useEffect(() => {
+    // If token expired/not present, send user to home page
+    if(tokenState.tokenExpired){
+      navigate('/')
+    }
+    
+    // Get user info
+    axios.get(getUserInfoURL, {
+      headers: {
+        'Authorization': `Bearer ${tokenState.token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }).then((res) => {
+      setName(res.data.name)
+      setId(res.data.setId)
+
+    }).catch((error) => {
+      console.log(error)
+    }) 
+  }, [])
+
 
   // Handlers
   const handleCreate = () => {
     console.log("Creating game")
-    axios.post(createGameURL)
-      .then(res => {
-        console.log(res)
-        navigate('/game-room')
-      }) 
+    socket.emit('createTable')
+
+    // axios.post(createGameURL)
+    //   .then(res => {
+    //     console.log(res)
+    //     navigate('/game-room')
+    //   }) 
   }
 
   const handleJoin = () => {
     console.log("Joining game")
-    axios.post(joinGameURL)
-      .then(res => {
-        console.log(res)
-        navigate('/game-room')
-      }) 
+    socket.emit('joinTable')
+
+    // axios.post(joinGameURL)
+    //   .then(res => {
+    //     console.log(res)
+    //     navigate('/game-room')
+    //   }) 
   }
 
   return (

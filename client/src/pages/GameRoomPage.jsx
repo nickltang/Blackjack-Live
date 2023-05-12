@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation'
+import axios from 'axios'
+import { getToken } from '../utils/auth';
+
 
 /*
     TO DO:
@@ -23,16 +27,52 @@ import Navigation from '../components/Navigation'
         - Miscellaneous
             - Show game rules
 */
+
+const getUserInfoURL = 'http://localhost:8000/api/users/get-user-info'
+
+
 const GameRoomPage = () => {
-    const { id } = useParams()
+    const [name, setName] = useState("")
+    const [playerId, setPlayerId] = useState("")
+    const { roomId } = useParams()
+    
     // players, activePlayers, cards, balance, gameFinished
     const [players, setPlayers] = useState()
     const [cards, setCards] = useState()
     const [balance, setBalance] = useState()
 
 
-    // if player is registered (JWT token)
+    const navigate = useNavigate()
+    const tokenState = getToken()
 
+    useEffect(() => {
+        // If token expired/not present, send user to home page
+        if(tokenState.tokenExpired){
+          navigate('/')
+        }
+        
+        // Get user info
+        axios.get(getUserInfoURL, {
+            headers: {
+                'Authorization': `Bearer ${tokenState.token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        }).then((res) => {
+            // Set current player's information
+            // Add other fields
+            setName(res.data.name)
+            setPlayerId(res.data.id)
+    
+        }).catch((error) => {
+            console.log(error)
+        }) 
+
+
+        // Socket Listeners
+
+      }, [])
+    
 
     // join/leave
     const handleJoin = () => {

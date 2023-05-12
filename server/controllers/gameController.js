@@ -3,7 +3,16 @@ const User = require('../models/user')
 
 // Endpoints
 exports.createGame = async(req, res) => {
+    const user = User.findById(req.user.id)
+
+    if(!user) {
+        res.status(400)
+        throw new Error('User does not exist')
+    }
+
     // Create player
+    
+
     // Create table with player
 
     res.status(200).json({

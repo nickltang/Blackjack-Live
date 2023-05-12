@@ -32,7 +32,6 @@ exports.createUser = asyncHandler(async (req, res) => {
         name,
         email,
         password: hashedPassword,
-        token: generateToken(user._id),
     })
 
     if(user) {
@@ -40,7 +39,8 @@ exports.createUser = asyncHandler(async (req, res) => {
             _id: user.id,
             username: user.username,
             name: user.name,
-            email: user.email
+            email: user.email,
+            token: generateToken(user._id),
         })
     } else {
         res.status(400)
@@ -62,17 +62,39 @@ exports.getUserInfo = asyncHandler(async (req, res) => {
 
 
 exports.updateUserInfo = asyncHandler(async (req, res) => {
-    res.status(200).json({
-        message: 'Update user info success'
-    });
+    const { username, name, oldPassword, newPassword } = req.body
+
+    // Check if user exists
+    const user = await User.findOne({username})
+    if(!user) {
+        res.status(400)
+        throw new Error('User does not exist')
+    }
+
+    // If old password entered matches db password, update info
+    if(await bcrypt.compare(oldPassword, user.password)) {
+        // Hash password
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(newPassword, salt)
+
+        
+        res.status(200).json({
+            message: 'Update user info success'
+        });
+
+
+    }
+
+    res.status(400)
+    throw new Error('User does not exist')
 })
 
 
 exports.logIn = asyncHandler(async (req, res) => {
-    const { username, password } = req.body
+    const { email, password } = req.body
 
     // Check for user email
-    const user = await User.findOne({username})
+    const user = await User.findOne({email})
 
     if(user && (await bcrypt.compare(password, user.password))) {
         res.json({
@@ -84,7 +106,7 @@ exports.logIn = asyncHandler(async (req, res) => {
         })
     } else {
         res.status(400)
-        // throw new Error('Invalid credentials')
+        throw new Error('Invalid credentials')
     }
 
     res.status(200).json({

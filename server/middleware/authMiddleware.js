@@ -4,6 +4,7 @@ const User = require('../models/user')
 
 const protect = asyncHandler(async (req, res, next) => {
     let token
+    console.log('Auth', req.headers.authorization)
 
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
@@ -19,6 +20,7 @@ const protect = asyncHandler(async (req, res, next) => {
             next()
         } catch (error) {
             console.log(error)
+            res.json('auth', req.headers.authorization)
             res.status(401)
             throw new Error('Not authorized')
         }
