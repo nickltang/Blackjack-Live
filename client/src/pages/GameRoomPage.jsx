@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation'
 import axios from 'axios'
 import { getToken } from '../utils/auth';
-
+import { SocketContext } from '../context/SocketContext';
 
 /*
     TO DO:
@@ -34,16 +34,20 @@ const getUserInfoURL = 'http://localhost:8000/api/users/get-user-info'
 const GameRoomPage = () => {
     const [name, setName] = useState("")
     const [playerId, setPlayerId] = useState("")
-    const { roomId } = useParams()
     
     // players, activePlayers, cards, balance, gameFinished
     const [players, setPlayers] = useState()
     const [cards, setCards] = useState()
     const [balance, setBalance] = useState()
 
-
     const navigate = useNavigate()
     const tokenState = getToken()
+    const { roomId } = useParams()
+
+    const socket = useContext(SocketContext);
+
+
+
 
     useEffect(() => {
         // If token expired/not present, send user to home page
@@ -68,8 +72,13 @@ const GameRoomPage = () => {
             console.log(error)
         }) 
 
+        socket.emit('getGameState')
 
         // Socket Listeners
+        socket.on('gameState', res => {
+            console.log('game state', res)
+        })
+
 
       }, [])
     
@@ -82,6 +91,7 @@ const GameRoomPage = () => {
     const handleLeave = () => {
 
     }
+
 
     // game change handlers
     const handleBet = () => {
@@ -119,7 +129,12 @@ const GameRoomPage = () => {
         <>
             <Navigation />
             <div className='mt-5 my-auto text-center'>
-                <h1>Game Room</h1>
+                <p>Game ID: {roomId}</p>
+                <div className='gameContainer'>
+                    <div className='dealerHand'>
+
+                    </div>
+                </div>
             </div>
         </>
     )

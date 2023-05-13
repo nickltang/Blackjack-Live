@@ -5,7 +5,6 @@ const morgan = require('morgan');
 const cors = require('cors');
 const { errorHandler } = require('./middleware/errorMiddleware')
 require('dotenv').config();
-const {v4: uuidv4} = require('uuid')
 
 
 // app
@@ -42,42 +41,11 @@ const io = require('socket.io')(server, {
     }
 })
 
+
+// Initialize game room socket listener
 const { GameRoom, initGameRooms } = require("./game/gameRoom")
 const { Player } = require("./game/player")
-
-// Listen for socket events with name "connection"
-io.on("connection", (socket) =>{
-    console.log(`User Connected: ${socket.id}`);
-  
-    socket.on("createTable", () => {
-        const newTableId = uuidv4()
-        socket.join(newTableId);
-
-        console.log(`User ID: ${socket.id} joined the table: ${newTableId}`)
-        socket.to(newTableId).emit("createTableResponse", newTableId)
-    });
-
-    // table id is in in data, data passed from client
-    socket.on("joinTable", (data) => {
-        socket.join(data);
-        console.log(`User ID: ${socket.id} joined the table: ${data}`)
-    });
-  
-    // listens for message data to be emitted from client side / creates event send_message
-    socket.on("sendMessage", (data) => {
-        // Emits messages you send to all other uses in the chatRoom
-        socket.to(data.tableId).emit("receiveMessage", data);
-        console.log(data);
-    });
-  
-    // disconnect from the server at the end
-    socket.on("disconnect", () => {
-      console.log("User Disconnected", socket.id);
-    });
-  });
-  
-
-
+initGameRooms(io)
 
 
 // port

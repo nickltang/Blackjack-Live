@@ -18,33 +18,40 @@ import { useNavigate } from 'react-router-dom';
                 - Checks if new password is valid
                 - Save button calls localhost:8000/api/update-user-info
 */
+
+const getUserInfoURL = 'http://localhost:8000/api/users/get-user-info'
+const updateUserInfoURL = 'http://localhost:8000/api/users/update-user-info'
+
+
 const AccountPage = () => {
   const navigate = useNavigate()
   const tokenState = getToken()
 
-  // useEffect(() => {
-  //     // If token expired/not present, send user to home page
-  //     if(tokenState.tokenExpired){
-  //       navigate('/')
-  //     }
-      
-  //     // Get user info
-  //     axios.get(getUserInfoURL, {
-  //         headers: {
-  //             'Authorization': `Bearer ${tokenState.token}`,
-  //             'Accept': 'application/json',
-  //             'Content-Type': 'application/json'
-  //         }
-  //     }).then((res) => {
-  //         // Set current player's information
-  //         // Add other fields
-  //         setName(res.data.name)
-  //         setPlayerId(res.data.id)
-  
-  //     }).catch((error) => {
-  //         console.log(error)
-  //     })       
-  //   }, [])
+  const [name, setName] = useState('')
+  const [id, setId] = useState('')
+
+  // Component did mount
+  useEffect(() => {
+    // If token expired/not present, send user to home page
+    if(tokenState.tokenExpired){
+      navigate('/')
+    }
+    
+    // Get user info
+    axios.get(getUserInfoURL, {
+      headers: {
+        'Authorization': `Bearer ${tokenState.token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }).then((res) => {
+      setName(res.data.name)
+      setId(res.data.setId)
+
+    }).catch((error) => {
+      console.log(error)
+    }) 
+  }, [])
 
 
   return (

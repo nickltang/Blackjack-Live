@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Navigation from '../components/Navigation'
 import { getToken } from '../utils/auth';
+import { v4 as uuidv4 } from 'uuid';
+import Form from 'react-bootstrap/Form';
+import {SocketContext} from '../context/SocketContext';
 
 
-const createGameURL = 'http://localhost:8000/users/create-game'
-const joinGameURL = 'http://localhost:8000/users/join-game'
+
 const getUserInfoURL = 'http://localhost:8000/api/users/get-user-info'
 
-const LobbyPage = ({socket}) => {
+const LobbyPage = () => {
+  const socket = useContext(SocketContext);
+
   // Hooks
   const navigate = useNavigate()
   const tokenState = getToken()
@@ -18,6 +22,8 @@ const LobbyPage = ({socket}) => {
   // State
   const [name, setName] = useState("")
   const [id, setId] = useState("")
+  const [gameId, setGameId] = useState('')
+  const [error, setError] = useState('')
 
   // Component did mount
   useEffect(() => {
@@ -35,35 +41,46 @@ const LobbyPage = ({socket}) => {
       }
     }).then((res) => {
       setName(res.data.name)
-      setId(res.data.setId)
+      setId(tokenState.decodedJWT.id)
 
     }).catch((error) => {
       console.log(error)
     }) 
+
+    // Socket Listeners
+    socket.on("roomOpenResponse", (res) => {
+      console.log('roomOpen res', res)
+      socket.emit('joinRoom', res, id)
+    })
+
+    socket.on("createRoomResponse", (res) => {
+      console.log('create room', res)
+      socket.emit('joinRoom', res, id)
+    })
+
+    socket.on("joinedRoom", res => {
+      navigate(`/game-room/${res}`)
+    })
+
+    socket.on('error', res => {
+      console.log('error: ', res)
+      setError(res)
+    })
   }, [])
 
 
   // Handlers
-  const handleCreate = () => {
-    console.log("Creating game")
-    socket.emit('createTable')
+  const handleIdChange = (e) => {
+    setGameId(e.target.value)
+  }
 
-    // axios.post(createGameURL)
-    //   .then(res => {
-    //     console.log(res)
-    //     navigate('/game-room')
-    //   }) 
+  const handleCreate = () => {
+    const gameID = uuidv4()
+    socket.emit('createRoom', gameID)
   }
 
   const handleJoin = () => {
-    console.log("Joining game")
-    socket.emit('joinTable')
-
-    // axios.post(joinGameURL)
-    //   .then(res => {
-    //     console.log(res)
-    //     navigate('/game-room')
-    //   }) 
+    socket.emit('roomOpen', gameId)
   }
 
   return (
@@ -71,15 +88,22 @@ const LobbyPage = ({socket}) => {
       <Navigation/>
       <div className='mt-5 text-center'>
         <h1>Welcome to Blackjack Live, {name}!</h1>
-        <p className='mt-4'>Create a game or join a game to start playing</p>
-        <div className='mt-3'>
-          <Button variant="outline-primary" onClick={handleCreate}>
+        <p className='mt-4'>Choose an option below to start playing</p>
+        <Form className='mt-3 w-25'>
+          <Button variant="outline-primary" className='my-3' onClick={handleCreate}>
             Create Game
           </Button>
-          <Button variant="outline-success" className='mx-2' onClick={handleJoin}>
+          <h4>OR</h4>
+          <Form.Control 
+            placeholder="Game ID"
+            aria-label="Game ID"
+            onChange={handleIdChange}
+          />
+          <Button variant="outline-success" className='my-3' onClick={handleJoin}>
             Join Game
           </Button>
-        </div>
+          <p>{error}</p>
+        </Form>
       </div>
     </>
   )

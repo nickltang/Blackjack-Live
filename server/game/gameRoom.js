@@ -1,65 +1,59 @@
 const { Player } = require("./player")
+const blackjack = require('engine-blackjack')
+const {parse, stringify, toJSON, fromJSON} = require('flatted');
+
+const actions = blackjack.actions
+const Game = blackjack.Game
 
 class GameRoom {    
-    constructor(roomId) {
-      this.roomId = roomId;
-      this.maxPlayers = 2;
-      this.players = [];
-      this.game = new Game();
+    constructor(roomId, socket) {
+        this.socket = socket
+        this.roomId = roomId;
+        this.maxPlayers = 2;
+        this.players = [];
+        this.game = new Game();
     }
   
-    addPlayer(player) {
-      if (this.players.length < this.maxPlayers) {
-        this.players.push(player);
-        player.emit('player joined', player.name);
-        this.broadcast('update players', this.players.map(player => player.name));
-        return true;
-      }
-      return false;
+    addPlayer(player,) {
+        if (this.players.length < this.maxPlayers) {
+            this.players.push(player);
+            return true;
+        }
+        return false;
     }
   
     removePlayer(player) {
-      this.players = this.players.filter(p => p !== player);
-      player.emit('player left', player.name);
-      this.broadcast('update players', this.players.map(player => player.name));
+        this.players = this.players.filter(p => p !== player);
+        player.emit('player left', player.name);
+    }
+    
+    getState() {
+        return {
+            game: this.game.getState(),
+            players: this.players.map(player => player.getState())
+        }
     }
   
-    broadcast(event, data) {
-      this.players.forEach(player => {
-        player.emit(event, data);
-      });
-    }
-  
-    listen(io) {
-      io.on('connection', socket => {
-        // Handle player joining room
-        socket.on('joinRoom', (playerName) => {
-          const player = new Player(playerName, socket);
-        
-          if (this.addPlayer(player)) {
-            player.listen(io, this);
+    listen(io, socket) {
+        console.log('listen')
 
-            // Send current game state to newly joined player
-            socket.emit("gameState", this.game.getState());
-          } else {
-            player.emit('room full');
-          }
-        });
+        socket.on('getGameState', () => {
+            console.log(this.roomId)
+            io.to(this.roomId).emit('gameState', this.getState())
+        })
 
-        // Handle incoming actions from players
         socket.on("action", (action) => {
             // Check if game is over
             if (this.gameOver) {
-            console.log("Game over. Cannot perform any more actions.");
-            return;
+                console.log("Game over. Cannot perform any more actions.");
+                return;
             }
 
-            // Dispatch the action to the game
             const newState = this.game.dispatch(action);
 
             // Check if the game is over
             if (newState.stage === "done") {
-            this.gameOver = true;
+                this.gameOver = true;
             }
 
             // Broadcast the new game state to all players in the room
@@ -71,48 +65,60 @@ class GameRoom {
         socket.on("disconnect", () => {
             console.log(`Player disconnected from room ${this.roomId}`);
         });
-
-
-      });
-
-
     }
   }
 
 
 const initGameRooms = (io) => {
-  const gameRooms = {};
+    // Stores all game rooms
+    const rooms = {};
 
-  // Listen for socket events related to game room creation
-  io.on('connection', (socket) => {
+    // Listeners
+    io.on('connection', (socket) => {
+        socket.on('createRoom', (roomId) => {
+            console.log(`Creating room ${roomId}`)
 
-    socket.on('createGameRoom', (roomId) => {
-      if (!gameRooms[roomId]) {
-        // Create a new game room object
-        const gameRoom = new GameRoom(roomId);
+            const gameRoom = new GameRoom(roomId, socket);
+            rooms[roomId] = gameRoom;
+            gameRoom.listen(io, socket);
 
-        // Store the game room object
-        gameRooms[roomId] = gameRoom;
-
-        // Listen for socket events related to the game room object
-        gameRoom.listen(io);
-
-        console.log(`Game room ${roomId} created`);
-      }
-    });
+            socket.emit('createRoomResponse', gameRoom.roomId)
+        });
 
 
-    socket.on('joinGameRoom', (roomId, playerId) => {
-        // Locate game room object
-        if (!gameRooms[roomId]) {
-            socket.emit('Error', 'Game room not found')
-        } else {
+        socket.on('joinRoom', (roomId, playerId) => {
+            console.log(`Player ${playerId} attempting to join room ${roomId}`)
+
             const newPlayer = new Player(playerId, io)
-            gameRooms[roomId].addPlayer
-        }
-    })
+            const currentRoom = rooms[roomId]
+            
+            if(currentRoom.addPlayer(newPlayer)) {
+                socket.join(roomId)   
+                io.to(roomId).emit('joinedRoom', roomId)
+            } else {
+                socket.emit('error', 'RoomFullError')
+            }
+        })
 
-  });
+        socket.on('roomOpen', () => {
+            if (!rooms[roomId]) {
+                socket.emit('error', 'GameNotFoundError')    
+            } else {
+                socket.emit('roomOpenResponse', roomId)
+            }
+        })
+
+        socket.on('leaveRoom', (roomId, playerId) => {
+            // Locate game room object
+            if (!rooms[roomId]) {
+                socket.emit('Error', 'GameNotFoundError')
+            } else {
+                const newPlayer = new Player(playerId, io)
+                rooms[roomId].removePlayer
+            }
+        })
+
+    });
 };
 
 module.exports = {

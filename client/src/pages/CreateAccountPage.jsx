@@ -103,12 +103,6 @@ const CreateAccountPage = () => {
   return (
     <>
       <Navigation />
-        <section>
-          <h1>Success!</h1>
-          <p>
-            <a href="/">Go to Home</a>
-          </p>
-        </section>
         <div id="displayForm">
           <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
           <form onSubmit={handleSubmit}>

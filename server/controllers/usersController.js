@@ -53,7 +53,6 @@ exports.getUserInfo = asyncHandler(async (req, res) => {
 
     res.status(200).json({
         id: _id,
-        username: username,
         name: name,
         email: email,
     })
@@ -93,7 +92,7 @@ exports.logIn = asyncHandler(async (req, res) => {
     const { email, password } = req.body
 
     // Check for user email
-    const user = await User.findOne({email})
+    const user = await User.findOne({email: email})
 
     if(user && (await bcrypt.compare(password, user.password))) {
         res.json({
