@@ -1,9 +1,10 @@
 import React from 'react'
 import Navigation from '../components/Navigation'
-import { useRef, useState, useEffect, useContext } from 'react'
-import AuthContext from "../context/AuthProvider"
-import axios from '../api/axios';
-const LOGIN_URL = '/api/users/login';
+import { useNavigate } from 'react-router-dom'
+import axios from '../api/axios'
+import { useRef, useState, useEffect } from "react";
+import { Link } from "react-router-dom"
+
 
 /*
     TO DO:
@@ -14,15 +15,18 @@ const LOGIN_URL = '/api/users/login';
                 - Should validate login info with api
 */
 
+const USER_REGEX = /^[A-z][A-z0-9-_]{5,23}$/;
+const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
+const LOGIN_URL = '/api/users/login';
+
 const LoginPage = () => {
-  const { setAuth } = useContext(AuthContext);
+  const navigate = useNavigate()
   const userRef = useRef();
   const errRef = useRef();
 
-  const [email, setEmail] = useState('');
+  const [user, setUser] = useState('');
   const [pwd, setPwd] = useState('');
   const [errMsg, setErrMsg] = useState('');
-  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     userRef.current.focus();
@@ -30,88 +34,86 @@ const LoginPage = () => {
 
   useEffect(() => {
     setErrMsg('');
-  }, [email, pwd])
+  }, [user, pwd])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // if button enabled with JS hack
+    const v1 = USER_REGEX.test(user);
+    const v2 = PWD_REGEX.test(pwd);
 
+    if (!v1 || !v2) {
+      setErrMsg("Invalid Entry");
+      return;
+    }
 
     await axios.post(LOGIN_URL,
-      { 
-        email: email, 
-        password: pwd },
+      {
+        username: user,
+        password: pwd
+      },
       {
         headers: { 'Content-Type': 'application/json' },
         // withCredentials: true
       })
-    .then((res)=> {
-      console.log(res)
-      // Save JWT
-      localStorage.setItem('jwt_token', res.data.token)
-
-    })
-    .catch((err) => {
-      if (!err?.response) {
-        setErrMsg('No Server Response');
-      } else if (err.response?.status === 400) {
-        setErrMsg('Missing Username or Password');
-      } else if (err.response?.status === 401) {
-        setErrMsg('Unauthorized');
-      } else {
-        setErrMsg('Login Failed');
-      }
-      errRef.current.focus();
-    })
+      .then((res) => {
+        console.log(res)
+        // Save JWT
+        localStorage.setItem('jwt_token', res.data.token)
+        navigate('/lobby')
+      })
+      .catch((err) => {
+        if (!err?.response) {
+          setErrMsg('No Server Response');
+        } else if (err.response?.status === 400) {
+          console.log(err.response)
+          setErrMsg('Wrong Username or Password');
+        } else if (err.response?.status === 401) {
+          setErrMsg('Unauthorized');
+        } else {
+          setErrMsg('Login Failed');
+        }
+        errRef.current.focus();
+      })
+  }
 
   return (
     <>
       <Navigation />
-      {success ? (
-        <section>
-          <h1>You are logged in!</h1>
-          <br />
-          <p>
-            <a href="/">Go to Home</a>
-          </p>
-        </section>
-      ) : (
-        <div id="displayForm">
-          <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
-          <form onSubmit={handleSubmit}>
-          <h1>Sign In</h1>
-            <label htmlFor="username">Username:</label>
-            <input
-              type="text"
-              id="username"
-              ref={userRef}
-              autoFocus
-              autoComplete="off"
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-              required
-            />
+      <div id="displayForm">
+        <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
+        <form onSubmit={handleSubmit}>
+          <h1 id="M0">Login</h1>
+          <label htmlFor="username">Username:</label>
+          <input
+            type="text"
+            id="username"
+            ref={userRef}
+            autoComplete="off"
+            onChange={(e) => setUser(e.target.value)}
+            value={user}
+            required
+          />
 
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              onChange={(e) => setPwd(e.target.value)}
-              value={pwd}
-              required
-            />
-            <button>Sign In</button>
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            onChange={(e) => setPwd(e.target.value)}
+            value={pwd}
+            required
+          />
+          <button>Sign In</button>
           <p id="margin0">
-            Need an Account?<br />
-            <span id="margin0"className="line">
-              <a href="/create-account">Sign Up</a>
+            Don't have a account?<br />
+            <span id="margin0" className="line">
+              <Link to="/create-account">Create a account</Link>
             </span>
           </p>
-          </form>
-        </div>
-      )}
+        </form>
+      </div>
     </>
   )
-}
 }
 
 export default LoginPage
