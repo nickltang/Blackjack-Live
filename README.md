@@ -29,5 +29,5 @@ npm start
 4. Open two browser tabs and navigate to http://localhost:3000 in each to demonstrate the live chat feature between two users
 
 ## Demo
-![Alt Text](http://g.recordit.co/hrunZny1CD.gif)
+![Demo gif](http://g.recordit.co/hrunZny1CD.gif)
 
