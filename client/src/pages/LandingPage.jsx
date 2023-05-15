@@ -24,12 +24,12 @@ const LandingPage = () => {
   // Handlers
   const handleLogin = () => {
     console.log("Landing Page")
-    navigate('/login')
+    navigate(LoginPageURL)
   }
 
   const handleCreateAccount = () => {
     console.log("Navigate to Create Account Page")
-    navigate('/create-account')
+    navigate(CreateAccountPageURL)
   }
   return (
     <>
@@ -38,9 +38,9 @@ const LandingPage = () => {
         <h1>Welcome to Blackjack Live</h1>
         <div className='landingContainer'>
         <div className='landingContainer__text'>
-          <div className='ruleText'>
+          <div className='ruleText text-center'>
             <h2> Simple rule</h2>
-            <p>The goal is to get a hand total as close to 21 as possible without going over.
+            <p id='padtext'>The goal is to get a hand total as close to 21 as possible without going over.
               Players are dealt two cards and can choose to receive additional cards or
               stay with their current hand. The dealer also plays and must follow specific rules.
               The player wins if their hand total is higher than the dealer's without exceeding 21.
