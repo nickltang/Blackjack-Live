@@ -14,7 +14,8 @@ A web-based blackjack game with video chat room functionality
 
 ## Instructions to Run Locally
 1. Make sure you have the latest versions of npm and node installed
-2. In a terminal window, navigate to the server folder and enter:
+2. Download the .env file and place it within the server directory.
+3. In a terminal window, navigate to the server folder and enter:
 ```
 npm install
 npm start
