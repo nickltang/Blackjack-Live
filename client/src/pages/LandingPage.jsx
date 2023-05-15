@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import axios from 'axios'
+import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Navigation from '../components/Navigation'
@@ -16,7 +15,6 @@ const CreateAccountPageURL = 'http://localhost:8000/create-account'
 
 const LandingPage = () => {
   // State
-  const [name, setName] = useState("{insert name}")
 
   // Hooks
   const navigate = useNavigate()
