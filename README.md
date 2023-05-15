@@ -1,5 +1,5 @@
 # Blackjack-Live
-Multiplayer web-based blackjack game with video chat functionality
+Web-based blackjack game with video chat room functionality
 
 ## Tech Stack
 
@@ -18,5 +18,4 @@ npm start
 npm install  
 npm start  
 ```
-4. Open the browser and navigate to http://localhost:3000
-
+4. Open two browser tabs and navigate to http://localhost:3000 in each to demonstrate the live chat feature between two users
