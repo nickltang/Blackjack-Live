@@ -15,7 +15,7 @@ import { Link } from "react-router-dom"
                 - Should validate login info with api
 */
 
-const USER_REGEX = /^[A-z][A-z0-9-_]{5,23}$/;
+const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 const LOGIN_URL = '/api/users/login';
 
@@ -24,7 +24,7 @@ const LoginPage = () => {
   const userRef = useRef();
   const errRef = useRef();
 
-  const [user, setUser] = useState('');
+  const [email, setEmail] = useState('');
   const [pwd, setPwd] = useState('');
   const [errMsg, setErrMsg] = useState('');
 
@@ -34,12 +34,12 @@ const LoginPage = () => {
 
   useEffect(() => {
     setErrMsg('');
-  }, [user, pwd])
+  }, [email, pwd])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     // if button enabled with JS hack
-    const v1 = USER_REGEX.test(user);
+    const v1 = EMAIL_REGEX.test(email);
     const v2 = PWD_REGEX.test(pwd);
 
     if (!v1 || !v2) {
@@ -49,7 +49,7 @@ const LoginPage = () => {
 
     await axios.post(LOGIN_URL,
       {
-        username: user,
+        email: email,
         password: pwd
       },
       {
@@ -84,14 +84,14 @@ const LoginPage = () => {
         <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
         <form onSubmit={handleSubmit}>
           <h1 id="M0">Login</h1>
-          <label htmlFor="username">Username:</label>
+          <label htmlFor="username">Email:</label>
           <input
             type="text"
             id="username"
             ref={userRef}
             autoComplete="off"
-            onChange={(e) => setUser(e.target.value)}
-            value={user}
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
             required
           />
 

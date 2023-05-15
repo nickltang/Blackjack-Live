@@ -10,8 +10,6 @@ import Navigation from '../components/Navigation'
         - Button that links to create account page
         - Button that links to login page
 */
-const LoginPageURL = 'http://localhost:8000/login'
-const CreateAccountPageURL = 'http://localhost:8000/create-account'
 
 const LandingPage = () => {
   // State
@@ -22,12 +20,12 @@ const LandingPage = () => {
   // Handlers
   const handleLogin = () => {
     console.log("Landing Page")
-    navigate(LoginPageURL)
+    navigate('/login')
   }
 
   const handleCreateAccount = () => {
     console.log("Navigate to Create Account Page")
-    navigate(CreateAccountPageURL)
+    navigate('/create-account')
   }
   return (
     <>
@@ -53,13 +51,13 @@ const LandingPage = () => {
             Login
           </Button> 
         </div>
-        <div class='landingContainer_video'>
+        <div className='landingContainer_video'>
         <iframe width="560" height="315" 
           src="https://www.youtube.com/embed/eyoh-Ku9TCI" 
-          title="YouTube video player" frameborder="0" 
+          title="YouTube video player" frameBorder="0" 
           allow="accelerometer; autoplay; clipboard-write; 
-          encrypted-media; gyroscope; picture-in-picture; web-share" 
-          allowfullscreen></iframe>
+          encrypted-media; gyroscope; picture-in-picture;" 
+          allowFullScreen></iframe>
         </div>
         </div>
       </div>

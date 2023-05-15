@@ -1,17 +1,32 @@
-import { UNSAFE_convertRoutesToDataRoutes } from '@remix-run/router';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-
-const loggedInHome = "http://localhost:3000/lobby"
-const loggedOutHome = "http://localhost:3000/"
+import Button from 'react-bootstrap/Button'
+import { getToken } from '../utils/auth';
+import { useNavigate } from 'react-router-dom';
 
 const Navigation = () => {
-    const [loggedIn, setLoggedIn] = useState(true)
+    const tokenState = getToken()
+    const navigate = useNavigate()
 
-    const loggedInNav = <Nav.Link href="/account">Account</Nav.Link>
+    const[loggedIn, setLoggedIn] = useState(false)
+
+    useEffect(() => {
+        if(!tokenState.tokenExpired){
+            setLoggedIn(true)
+        }
+    })
+
+    const handleLogout = () => {
+        localStorage.removeItem("jwt_token")
+        navigate('/')
+    }
+
+    const loggedInNav = <>
+        <Nav.Link href="/account">Account</Nav.Link>
+        <Button onClick={handleLogout}>Log out</Button>
+    </>
     const loggedOutNav = <>
                             <Nav.Link href="/">Home</Nav.Link>
                             <Nav.Link href="/login">Log In</Nav.Link>
