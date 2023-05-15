@@ -22,7 +22,7 @@ function App() {
           <Route path="/login" element={<LoginPage />}/>
           <Route path="/lobby" element={<LobbyPage />}/>
           <Route path="/game-room/:roomId" element={<GameRoomPage />}/>
-          <Route path="/account" element={<AccountPage />} />
+          {/* <Route path="/account" element={<AccountPage />} /> */}
           <Route path="*" element={<NotFoundPage />}/>
         </Routes>
         </SocketContext.Provider>

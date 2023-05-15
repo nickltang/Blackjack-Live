@@ -24,7 +24,7 @@ const Navigation = () => {
     }
 
     const loggedInNav = <>
-        <Nav.Link href="/account">Account</Nav.Link>
+        {/* <Nav.Link href="/account">Account</Nav.Link> */}
         <Button onClick={handleLogout}>Log out</Button>
     </>
     const loggedOutNav = <>

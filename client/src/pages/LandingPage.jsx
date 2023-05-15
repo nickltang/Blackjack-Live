@@ -1,7 +1,8 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Navigation from '../components/Navigation'
+import { getToken } from '../utils/auth';
 
 /*
     TO DO:
@@ -12,10 +13,14 @@ import Navigation from '../components/Navigation'
 */
 
 const LandingPage = () => {
-  // State
-
-  // Hooks
+  const tokenState = getToken()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if(!tokenState.tokenExpired){
+      navigate('/lobby')
+    }
+  },[])
 
   // Handlers
   const handleLogin = () => {
