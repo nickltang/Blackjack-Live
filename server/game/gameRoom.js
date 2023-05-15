@@ -10,7 +10,7 @@ class GameRoom {
         this.roomId = roomId;
         this.maxPlayers = 1;
         this.player = null;
-        this.maxCallers = 4
+        this.maxCallers = 2
         this.callers = []
         this.game = new Game();
         this.currentBet = 10;
@@ -26,6 +26,10 @@ class GameRoom {
         return state
     }
     
+    addCaller(thisId) {
+        if(this.callers.filter(callerId => callerId === thisId).length === 0)
+            this.callers.push(thisId)
+    }
 
     listen(io, socket) {
         socket.on('getGameState', (playerId) => {
@@ -111,16 +115,13 @@ const initGameRooms = (io, rooms) => {
             socket.emit('createRoomResponse', gameRoom.roomId)
         });
 
-        socket.on('spectateRoom', roomId => {
-            socket.join(roomId)   
-            io.to(roomId).emit('spectator', roomId)
-        })
-
 
         socket.on('joinRoom', async (roomId, playerId) => {
             if (!playerId)
                 return
             const currentRoom = rooms[roomId]
+
+            console.log('callers', currentRoom.callers)
 
             // Player
             if(currentRoom.player == null) {
@@ -128,14 +129,17 @@ const initGameRooms = (io, rooms) => {
 
                 const newPlayer = await Player.create(playerId)
                 currentRoom.player = newPlayer
-                currentRoom.callers.push(playerId)
+                currentRoom.addCaller(playerId)
 
                 socket.join(roomId)   
-                io.to(roomId).emit('joinedRoom', roomId, newPlayer.getState(playerId))
+                io.to(roomId).emit('joinedRoom', roomId, playerId)
             }
             else if(currentRoom.player !== null && currentRoom.callers.length <= currentRoom.maxCallers) {
                 console.log(`Caller ${playerId} joining room ${roomId}`)
-
+                currentRoom.addCaller(playerId)
+                
+                socket.join(roomId)   
+                io.to(roomId).emit('joinedRoom', roomId, playerId)
             }
             else {
                 console.log(`Room ${roomId} full.`)

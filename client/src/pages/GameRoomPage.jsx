@@ -1,9 +1,11 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation'
 import { getToken } from '../utils/auth';
 import { SocketContext } from '../context/SocketContext';
+// import { Peer } from 'peerjs';
+import { PeerContext } from '../context/PeerContext';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -19,8 +21,10 @@ const GameRoomPage = () => {
     const tokenState = getToken()
     const { roomId } = useParams()
     const socket = useContext(SocketContext);
+    const peer = useContext(PeerContext);
 
     const [player, setPlayer] = useState({})
+    const [activePlayer, setActivePlayer] = useState(true)
     const [betAmount, setBetAmount] = useState(1)
     const [stage, setStage] = useState()
     const [stageMessage, setStageMessage] = useState('')
@@ -30,7 +34,10 @@ const GameRoomPage = () => {
     const [dealerBusted, setDealerBusted] = useState(false)
     const [playerBusted, setPlayerBusted] = useState(false)
     const [moneyWon, setMoneyWon] = useState(0)
-    const [spectators, setSpectators] = useState()
+    const otherUserVideoRef = useRef(null);
+    const currentUserVideoRef = useRef(null);
+    const peerInstance = useRef(null);
+    const [canCall, setCanCall] = useState(false)
 
 
     useEffect(() => {
@@ -45,6 +52,19 @@ const GameRoomPage = () => {
         socket.on('gameState', (roomState, showdown) => {
             console.log('room state', roomState)
 
+            // Save other callers
+            const otherCallers = roomState.callers.filter(caller => caller !== tokenState.decodedJWT.id)
+            console.log('Other callers', otherCallers)
+            if(otherCallers.length > 0)
+                setCanCall(true)
+
+            // Check if inactive player
+            if(roomState.player.id !== tokenState.decodedJWT.id) {
+                setActivePlayer(false)
+            }
+            // Save current player in game
+            setPlayer(roomState.player)
+
             // Save game stage
             if(showdown === 'showdown' || (roomState.game.hits > 1 && roomState.game.stage === 'player-turn-right'))
                 setStage('showdown')
@@ -56,9 +76,6 @@ const GameRoomPage = () => {
             setDealerBusted(roomState.game.dealerHasBusted)
             setPlayerBusted(roomState.game.handInfo.right.playerHasBusted)
 
-
-            // Save current player in game
-            setPlayer(roomState.player)
 
             // Save hits
             setHits(roomState.game.hits)
@@ -75,11 +92,48 @@ const GameRoomPage = () => {
             // Save curent player's cards
             if(roomState.game.handInfo.right !== {})
                 setPlayerHandInfo(roomState.game.handInfo.right.cards)
+            
+
+            // const peer = new Peer(tokenState.decodedJWT.id);
+
+            peer.on('call', (call) => {
+                var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            
+                getUserMedia({ video: true, audio: true }, (mediaStream) => {
+                    currentUserVideoRef.current.srcObject = mediaStream;
+                    currentUserVideoRef.current.play();
+                    call.answer(mediaStream)
+                    call.on('stream', function(remoteStream) {
+                    otherUserVideoRef.current.srcObject = remoteStream
+                    otherUserVideoRef.current.play();
+                    });
+                });
+            })
+          
+            peerInstance.current = peer;
+
+            if(otherCallers.length > 0) {
+                var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+                getUserMedia({ video: true, audio: true }, (mediaStream) => {
+                    currentUserVideoRef.current.srcObject = mediaStream;
+                    currentUserVideoRef.current.play();
+
+                    const call = peerInstance.current.call(otherCallers[0], mediaStream)
+
+                    call.on('stream', (remoteStream) => {
+                        otherUserVideoRef.current.srcObject = remoteStream
+                        otherUserVideoRef.current.play();
+                    });
+                });
+            }
+            
         })
 
 
         // Listens for new players/specators joining
-        socket.on("joinedRoom", () => {
+        socket.on("joinedRoom", (roomId, newCaller) => {
+            console.log('New player joinedRoom: ', roomId, newCaller)
             socket.emit('getGameState')
         })
 
@@ -211,7 +265,6 @@ const GameRoomPage = () => {
         // Map player cards in game state to player cards array
         const playerCardNames = []
 
-        console.log(playerHandInfo)
         if(playerHandInfo !== undefined && playerHandInfo !== []) {
             playerHandInfo.forEach((playerCard) => {
                 playerCardNames.push(playerCard.text + playerCard.suite)
@@ -294,12 +347,25 @@ const GameRoomPage = () => {
                     </Col>
                 </Row>
                 <Row className='mx-auto'>
-                    {stageDisplay}
+                    {activePlayer? stageDisplay : <></>}
                 </Row>
             </Col>
         )
     }
 
+    // Render's video if other caller is present
+    const renderVideo = () => {
+        if(canCall) {
+            return (
+                <>
+                    <video ref={currentUserVideoRef} style={{'width':'12rem'}}></video>
+                    <video ref={otherUserVideoRef} style={{'width':'12rem'}}></video>    
+                </>
+            )
+        } else {
+            return <p className='mt-4'>No callers present. <br/>Share the game ID to chat with a friend!</p>
+        }
+    }
 
     return (
         <>
@@ -310,17 +376,26 @@ const GameRoomPage = () => {
                 </Row>    
             </div>
             <Container className='mt-3 my-auto text-center justify-content-center'>
-                <Row className='text-center h-25 w-75 mb-5 mx-auto justify-content-center' >
+                <Row xs={12} md={8}>
                     <Col>
-                        <h2 className='mb-2'>Dealer</h2>
-                        {/* <p className='mb-0'> Stage: {stage}</p> */}
-                        <p className='mb-2'>{stageMessage}</p>
-                        {renderDealerHand()}
+                        <Row className='text-center h-25 w-75 mb-5 mx-auto justify-content-center' >
+                            <Col>
+                                <h2 className='mb-2'>Dealer</h2>
+                                {/* <p className='mb-0'> Stage: {stage}</p> */}
+                                <p className='mb-2'>{stageMessage}</p>
+                                {renderDealerHand()}
+                            </Col>
+                        </Row>
+                        <Row className='h-25 w-75 mx-auto'>
+                            {renderPlayers()}
+                        </Row>    
+                    </Col>    
+                    <Col xs={6} md={4} className='inline-block'>
+                        <h3>Video Chat</h3>
+                        {renderVideo()}
                     </Col>
                 </Row>
-                <Row className='h-25 w-75 mx-auto'>
-                    {renderPlayers()}
-                </Row>
+                
             </Container>
         </>
     )

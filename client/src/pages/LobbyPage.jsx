@@ -42,7 +42,7 @@ const LobbyPage = () => {
 
     // Socket Listeners
     socket.on("roomOpenResponse", (res) => {
-      console.log('roomOpen res', res)
+      console.log('roomOpenres', res)
       socket.emit('joinRoom', res, tokenState.decodedJWT?.id)
     })
 
@@ -53,6 +53,7 @@ const LobbyPage = () => {
     })
 
     socket.on("joinedRoom", (roomId, newPlayer) => {
+      console.log('joinedRoom', roomId, newPlayer)
       navigate(`/game-room/${roomId}`)
     })
 
