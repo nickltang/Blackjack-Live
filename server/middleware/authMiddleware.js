@@ -4,7 +4,6 @@ const User = require('../models/user')
 
 const protect = asyncHandler(async (req, res, next) => {
     let token
-    console.log('Auth', req.headers.authorization)
 
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {

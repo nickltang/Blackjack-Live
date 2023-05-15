@@ -9,23 +9,18 @@ import Form from 'react-bootstrap/Form';
 import {SocketContext} from '../context/SocketContext';
 
 
-
 const getUserInfoURL = 'http://localhost:8000/api/users/get-user-info'
 
 const LobbyPage = () => {
   const socket = useContext(SocketContext);
-
-  // Hooks
   const navigate = useNavigate()
   const tokenState = getToken()
 
-  // State
   const [name, setName] = useState("")
-  const [id, setId] = useState("")
   const [gameId, setGameId] = useState('')
   const [error, setError] = useState('')
 
-  // Component did mount
+
   useEffect(() => {
     // If token expired/not present, send user to home page
     if(tokenState.tokenExpired){
@@ -41,8 +36,6 @@ const LobbyPage = () => {
       }
     }).then((res) => {
       setName(res.data.name)
-      setId(tokenState.decodedJWT.id)
-
     }).catch((error) => {
       console.log(error)
     }) 
@@ -50,16 +43,17 @@ const LobbyPage = () => {
     // Socket Listeners
     socket.on("roomOpenResponse", (res) => {
       console.log('roomOpen res', res)
-      socket.emit('joinRoom', res, id)
+      socket.emit('joinRoom', res, tokenState.decodedJWT?.id)
     })
 
     socket.on("createRoomResponse", (res) => {
       console.log('create room', res)
-      socket.emit('joinRoom', res, id)
+      console.log('id', tokenState.decodedJWT?.id)
+      socket.emit('joinRoom', res, tokenState.decodedJWT?.id)
     })
 
-    socket.on("joinedRoom", res => {
-      navigate(`/game-room/${res}`)
+    socket.on("joinedRoom", (roomId, newPlayer) => {
+      navigate(`/game-room/${roomId}`)
     })
 
     socket.on('error', res => {
@@ -75,8 +69,8 @@ const LobbyPage = () => {
   }
 
   const handleCreate = () => {
-    const gameID = uuidv4()
-    socket.emit('createRoom', gameID)
+    const createdId = uuidv4()
+    socket.emit('createRoom', createdId)
   }
 
   const handleJoin = () => {
@@ -88,10 +82,10 @@ const LobbyPage = () => {
       <Navigation/>
       <div className='mt-5 text-center'>
         <h1>Welcome to Blackjack Live, {name}!</h1>
-        <p className='mt-4'>Choose an option below to start playing</p>
+        <p className='mt-4'>Choose an option below to start playing or spectating</p>
         <Form className='mt-3 w-25'>
           <Button variant="outline-primary" className='my-3' onClick={handleCreate}>
-            Create Game
+            Play Game
           </Button>
           <h4>OR</h4>
           <Form.Control 
@@ -100,7 +94,7 @@ const LobbyPage = () => {
             onChange={handleIdChange}
           />
           <Button variant="outline-success" className='my-3' onClick={handleJoin}>
-            Join Game
+            Spectate Game
           </Button>
           <p>{error}</p>
         </Form>

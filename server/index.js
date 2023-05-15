@@ -23,8 +23,7 @@ app.use(express.json({ extended: false }));
 app.use(errorHandler);
 
 
-
-// routes
+// user endpoints
 const gameRoutes = require('./routes/game');
 const userRoutes = require('./routes/users');
 
@@ -32,7 +31,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/game', gameRoutes)
 
 
-// instantiate socket server
+const { GameRoom, initGameRooms } = require("./game/gameRoom")
+const { Player } = require("./game/player")
+const rooms = {}
+
+// instantiate socket server and game room listener
 const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
     cors: {
@@ -40,12 +43,7 @@ const io = require('socket.io')(server, {
         methods: ["GET", "POST"],
     }
 })
-
-
-// Initialize game room socket listener
-const { GameRoom, initGameRooms } = require("./game/gameRoom")
-const { Player } = require("./game/player")
-initGameRooms(io)
+initGameRooms(io, rooms)
 
 
 // port
