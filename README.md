@@ -2,7 +2,15 @@
 Web-based blackjack game with video chat room functionality
 
 ## Tech Stack
-
+- Frontend
+  - ReactJS
+  - Bootstrap
+- Backend
+  - Express/node.js
+  - MongoDB
+- Miscellaneous
+  - Socket.io, Websockets
+  - Peerjs, Web-RTC
 
 ## Instructions to Run Locally
 1. Make sure you have the latest versions of npm and node installed
@@ -19,3 +27,7 @@ npm install
 npm start  
 ```
 4. Open two browser tabs and navigate to http://localhost:3000 in each to demonstrate the live chat feature between two users
+
+## Demo
+![Alt Text](http://g.recordit.co/hrunZny1CD.gif)
+
