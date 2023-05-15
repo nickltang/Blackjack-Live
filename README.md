@@ -1,5 +1,5 @@
 # Blackjack-Live
-Web-based blackjack game with video chat room functionality
+A web-based blackjack game with video chat room functionality
 
 ## Tech Stack
 - Frontend
