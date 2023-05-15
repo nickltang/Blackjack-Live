@@ -20,8 +20,7 @@ const GameRoomPage = () => {
     const { roomId } = useParams()
     const socket = useContext(SocketContext);
 
-    const [playerIndex, setPlayerIndex] = useState()
-    const [players, setPlayers] = useState({})
+    const [player, setPlayer] = useState({})
     const [betAmount, setBetAmount] = useState(1)
     const [stage, setStage] = useState()
     const [stageMessage, setStageMessage] = useState('')
@@ -58,19 +57,8 @@ const GameRoomPage = () => {
             setPlayerBusted(roomState.game.handInfo.right.playerHasBusted)
 
 
-            // Save current players in game
-            const stateObj = roomState.players.reduce((stateObj, cur, i) => { 
-                return { ...stateObj, [i]: cur };     
-            }, {})
-            setPlayers(stateObj)
-
-            // Determine which player is current user
-            roomState.players.forEach((player, i) => {
-                if(tokenState.decodedJWT.id === player.id) {
-                    setPlayerIndex(i)
-                    return
-                }
-            })
+            // Save current player in game
+            setPlayer(roomState.player)
 
             // Save hits
             setHits(roomState.game.hits)
@@ -85,7 +73,8 @@ const GameRoomPage = () => {
             setDealerCards(dealerHand)
 
             // Save curent player's cards
-            setPlayerHandInfo(roomState.game.handInfo)
+            if(roomState.game.handInfo.right !== {})
+                setPlayerHandInfo(roomState.game.handInfo.right.cards)
         })
 
 
@@ -127,7 +116,7 @@ const GameRoomPage = () => {
 
 
     const handleChangeBet = (sign) => {
-        const maxBet = players[playerIndex].balance
+        const maxBet = player.balance
         if(sign === '+') {
             if(betAmount*10 + 1 <= maxBet) {
                 setStageMessage('Make a bet')
@@ -222,14 +211,13 @@ const GameRoomPage = () => {
         // Map player cards in game state to player cards array
         const playerCardNames = []
 
-        if(playerHandInfo.right.cards !== undefined) {
-            const allCards = playerHandInfo.right.cards
-            allCards.forEach((playerCard, index) => {
+        console.log(playerHandInfo)
+        if(playerHandInfo !== undefined && playerHandInfo !== []) {
+            playerHandInfo.forEach((playerCard) => {
                 playerCardNames.push(playerCard.text + playerCard.suite)
             })    
         }
         
-
         if (stage === "ready") {
             return (
                 <div>
@@ -250,7 +238,7 @@ const GameRoomPage = () => {
     }
 
     // Renders player's display
-    const renderPlayers = Object.keys(players).map((keyname, i) => {
+    const renderPlayers = () => {
         // Stage display shows input fields/buttons based on game stage
         let stageDisplay = <></>
         if (stage === 'ready') {
@@ -295,14 +283,14 @@ const GameRoomPage = () => {
         }
 
         return (
-            <Col key={i} className='h-50 py-2'>
+            <Col className='h-50 py-2'>
                 <Row className='my-4'>
-                    {renderPlayerHand(i)}
+                    {renderPlayerHand()}
                 </Row>
                 <Row>
                     <Col>
-                        <h3>{players[keyname].name}</h3>
-                        <p className='my-1'>Balance: {players[keyname].balance}</p>
+                        <h3>{player.name}</h3>
+                        <p className='my-1'>Balance: {player.balance}</p>
                     </Col>
                 </Row>
                 <Row className='mx-auto'>
@@ -310,7 +298,7 @@ const GameRoomPage = () => {
                 </Row>
             </Col>
         )
-    })
+    }
 
 
     return (
@@ -325,13 +313,13 @@ const GameRoomPage = () => {
                 <Row className='text-center h-25 w-75 mb-5 mx-auto justify-content-center' >
                     <Col>
                         <h2 className='mb-2'>Dealer</h2>
-                        <p className='mb-0'> Stage: {stage}</p>
+                        {/* <p className='mb-0'> Stage: {stage}</p> */}
                         <p className='mb-2'>{stageMessage}</p>
                         {renderDealerHand()}
                     </Col>
                 </Row>
                 <Row className='h-25 w-75 mx-auto'>
-                    {renderPlayers}
+                    {renderPlayers()}
                 </Row>
             </Container>
         </>

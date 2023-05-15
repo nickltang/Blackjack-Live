@@ -22,19 +22,12 @@ class Player {
             return newPlayer
         }
 
-        async decBalanceReturnUser(id, bet) {
-            console.log(`Decreasing ${id} by ${bet}`)
-            const decreaseAmount = -1 * bet
-            await User.findOneAndUpdate({_id: id}, {new: true}, {$inc: {balance: decreaseAmount}})
-            this.balance += decreaseAmount
-            console.log('balance:', this.balance)
-        }
 
         async incBalanceReturnUser(id, bet) {
-            console.log(`Increasing ${id} by ${bet}`)
-            await User.findOneAndUpdate({_id: id}, {new: true}, {$inc: {balance: bet}})
+            console.log(`Updating player ${id} by ${bet}`)
             this.balance += bet
             console.log('balance:', this.balance)
+            return await User.findOneAndUpdate({_id: id}, {$inc: {balance: bet}}, {new: true})
         }
     
 
