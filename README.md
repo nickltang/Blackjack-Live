@@ -33,3 +33,7 @@ npm start
 ![Demo gif](http://g.recordit.co/hrunZny1CD.gif)
 In case the demo gif doesn't load, you can access it [here](http://g.recordit.co/hrunZny1CD.gif).  
 Currently working on deploying this app, reach out to me at nicholasltang21@gmail.com for more info.
+
+## To Do
+- Write own gameplay logic (currently using a third-party library which only allows for single player)
+- Deploy to AWS? (Need to shift from Socket.io to WebSocket API from AWS API Gateway)
