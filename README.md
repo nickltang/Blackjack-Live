@@ -1,5 +1,5 @@
 # Blackjack-Live
-A web-based blackjack game with video chat room functionality
+A web-based blackjack game with video chat room functionality. Gameplay is single player for now-- other users are able to join a game room with an active player and spectate the game while video chatting.
 
 ## Tech Stack
 - Frontend
